@@ -34,8 +34,9 @@ def connect_with_middleware(contract_json):
 	# The second section requires you to inject middleware into your w3 object and
 	# create a contract object. Read more on the docs pages at https://web3py.readthedocs.io/en/stable/middleware.html
 	# and https://web3py.readthedocs.io/en/stable/web3.contract.html
+	w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 	checksum_addr = Web3.to_checksum_address(address)
-  contract = w3.eth.contract(address=checksum_addr, abi=abi)
+    contract = w3.eth.contract(address=checksum_addr, abi=abi)
 
 	return w3, contract
 
