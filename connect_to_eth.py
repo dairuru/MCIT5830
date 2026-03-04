@@ -23,7 +23,7 @@ def connect_with_middleware(contract_json):
 		d = json.load(f)
 	    bsc = d['bsc']
 	    address = d['address']
-	    abi = d['abi']
+	    abi = bsc['abi']
 
 	# connect to BSC testnet/mainnet RPC (default to a known BSC testnet seed)
 	bnb_url = "https://bnb-testnet.g.alchemy.com/v2/q32XCLf5tg3sd0mWojqa6"
