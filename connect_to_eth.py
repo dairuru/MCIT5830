@@ -20,10 +20,10 @@ def connect_to_eth():
 
 def connect_with_middleware(contract_json):
 	with open(contract_json, "r") as f:
-        d = json.load(f)
-        bsc = d['bsc']
-        address = d['address']
-        abi = d['abi']
+		d = json.load(f)
+		bsc = d['bsc']
+		address = d['address']
+		abi = d['abi']
 
 	# connect to BSC testnet/mainnet RPC (default to a known BSC testnet seed)
 	bnb_url = f"https://bnb-testnet.g.alchemy.com/v2/q32XCLf5tg3sd0mWojqa6"
