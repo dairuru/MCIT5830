@@ -37,9 +37,7 @@ def connect_with_middleware(contract_json):
 	w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 	checksum_addr = Web3.to_checksum_address(address)
     contract = w3.eth.contract(address=checksum_addr, abi=abi)
-
-	return w3, contract
-
+    return w3, contract
 
 if __name__ == "__main__":
-	connect_to_eth()
+    connect_to_eth()
