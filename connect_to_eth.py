@@ -11,7 +11,7 @@ infura_url = f"https://mainnet.infura.io/v3/{infura_token}"
 '''
 
 def connect_to_eth():
-	url = f"https://mainnet.infura.io/v3/f90904de1f944093b688120e1b698dcb"  # FILL THIS IN
+	url = f"https://eth-mainnet.alchemyapi.io/v2/q32XCLf5tg3sd0mWojqa6"  # FILL THIS IN
 	w3 = Web3(HTTPProvider(url))
 	assert w3.is_connected(), f"Failed to connect to provider at {url}"
 	return w3
@@ -28,7 +28,6 @@ def connect_with_middleware(contract_json):
 	# The first section will be the same as "connect_to_eth()" but with a BNB url
     bnb_url = f"http"
     w3 = Web3(HTTPProvider(bnb_url))
-    w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
     assert w3.is_connected(), f"Failed to connect to provider at {bnb_url}"
 
 
