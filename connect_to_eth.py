@@ -12,7 +12,7 @@ infura_url = f"https://mainnet.infura.io/v3/{infura_token}"
 
 
 def connect_to_eth():
-	url = "https://eth-mainnet.alchemyapi.io/v2/q32XCLf5tg3sd0mWojqa6"
+	url = f"https://eth-mainnet.alchemyapi.io/v2/q32XCLf5tg3sd0mWojqa6"
 	w3 = Web3(HTTPProvider(url))
 	assert w3.is_connected(), f"Failed to connect to provider at {url}"
 	return w3
@@ -23,7 +23,7 @@ def connect_with_middleware(contract_json):
 		d = json.load(f)
 	    bsc = d['bsc']
 	    address = d['address']
-	    abi = bsc['abi']
+	    abi = d['abi']
 
 	# connect to BSC testnet/mainnet RPC (default to a known BSC testnet seed)
 	bnb_url = f"https://bnb-testnet.g.alchemy.com/v2/q32XCLf5tg3sd0mWojqa6"
