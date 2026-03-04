@@ -41,16 +41,29 @@ def get_from_ipfs(cid,content_type="json"):
 	if path.startswith("/ipfs/"):
 		path = path[len("/ipfs/") :]
 
-	last_err = None
-	for gw in GATEWAYS:
-		url = gw + path
-		try:
-			r = requests.get(url, timeout=30)
-			r.raise_for_status()
+	data = None
 
-			if content_type == "json":
-				data = r.json()
-			else:
-				data = json.loads(r.text)
-	assert isinstance(data,dict), f"get_from_ipfs should return a dict"
+	# Loop through the GATEWAYS
+	for gateway in GATEWAYS:
+		try:
+			url = f"{gateway}{path}"
+			# Using a shorter timeout per gateway so one slow node doesn't hang the app
+			resp = requests.get(url, timeout=10)
+
+			if resp.status_code == 200:
+				if content_type == "json":
+					data = resp.json()
+				else:
+					data = resp.text
+
+				break
+		except Exception as e:
+			print(f"Failed to fetch from {gateway}: {e}")
+			continue # Try the next gateway
+
+	# Final check to ensure we actually got data
+	if data is None:
+		raise RuntimeError(f"Could not retrieve data for CID {path} from any available gateways.")
+
+	assert isinstance(data, dict), f"get_from_ipfs should return a dict (received {type(data)})"
 	return data
