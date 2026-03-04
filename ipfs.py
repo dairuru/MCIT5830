@@ -48,9 +48,9 @@ def get_from_ipfs(cid,content_type="json"):
 			r = requests.get(url, timeout=30)
 			r.raise_for_status()
 
-		if content_type == "json":
-			data = r.json()
-		else:
-			data = json.loads(r.text)
+			if content_type == "json":
+				data = r.json()
+			else:
+				data = json.loads(r.text)
 		assert isinstance(data,dict), f"get_from_ipfs should return a dict"
 		return data
