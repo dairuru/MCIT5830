@@ -26,7 +26,7 @@ def connect_with_middleware(contract_json):
 		abi = d['abi']
 
 	# connect to BSC testnet/mainnet RPC (default to a known BSC testnet seed)
-	bnb_url = f"https://bnb-testnet.g.alchemy.com/v2/q32XCLf5tg3sd0mWojqa6"
+	bnb_url = f"https://bsc-testnet-rpc.publicnode.com"
 	w3 = Web3(HTTPProvider(bnb_url))
 	assert w3.is_connected(), f"Failed to connect to provider at {bnb_url}"
 
