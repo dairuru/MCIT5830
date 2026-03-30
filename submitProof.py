@@ -95,18 +95,19 @@ def sign_challenge(challenge):
     Takes a challenge (string)
     Returns address, sig (in hex)
     """
+    # Get the account object from your sk.txt
     acct = get_account()
     addr = acct.address
     
-    # 1. Encode the text message properly for Ethereum
-    message = encode_defunct(text=challenge)
+    # 1. Prepare the message for signing (EIP-191 standard)
+    eth_encoded_msg = encode_defunct(text=challenge)
     
-    # 2. Sign the message using the account's sign_message method
-    # This is the most robust way to get the SignedMessage object
-    signed_msg = acct.sign_message(message)
+    # 2. Sign the message using the account's private key
+    # This returns a SignedMessage object, NOT a string
+    eth_sig_obj = acct.sign_message(eth_encoded_msg)
 
-    # 3. Return the address and the hex version of the signature
-    return addr, signed_msg.signature.hex()
+    # 3. Return the address and the signature in hex format
+    return addr, eth_sig_obj.signature.hex()
 
 def send_signed_msg(proof, random_leaf):
     """ Sends the transaction to the blockchain contract. """
