@@ -145,7 +145,12 @@ def get_account():
     return eth_account.Account.from_key(sk)
 
 def get_contract_info(chain):
-    contract_file = Path(__file__).parent.absolute() / "contract_info.json"
+    # Robust path finding for Codio
+    cur_dir = Path(__file__).parent.absolute()
+    contract_file = cur_dir / "contract_info.json"
+    if not contract_file.is_file():
+        contract_file = Path("contract_info.json")
+    
     with open(contract_file, "r") as f:
         d = json.load(f)[chain]
     return d['address'], d['abi']
