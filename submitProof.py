@@ -101,12 +101,12 @@ def sign_challenge(challenge):
     # 1. Encode the text message properly for Ethereum
     message = encode_defunct(text=challenge)
     
-    # 2. Sign the message using the private key
-    # This returns a SignedMessage object, which has the .signature attribute
-    eth_sig_obj = eth_account.Account.sign_message(message, private_key=acct.key)
+    # 2. Sign the message using the account's sign_message method
+    # This is the most robust way to get the SignedMessage object
+    signed_msg = acct.sign_message(message)
 
     # 3. Return the address and the hex version of the signature
-    return addr, eth_sig_obj.signature.hex()
+    return addr, signed_msg.signature.hex()
 
 def send_signed_msg(proof, random_leaf):
     """ Sends the transaction to the blockchain contract. """
