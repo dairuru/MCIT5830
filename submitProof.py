@@ -91,14 +91,22 @@ def prove_merkle(merkle_tree, random_indx):
     return merkle_proof
 
 def sign_challenge(challenge):
-    """ Signs the challenge string using the private key in sk.txt. """
+    """
+    Takes a challenge (string)
+    Returns address, sig (in hex)
+    """
     acct = get_account()
     addr = acct.address
     
+    # 1. Encode the text message properly for Ethereum
     message = encode_defunct(text=challenge)
-    signed_msg = eth_account.Account.sign_message(message, private_key=acct.key)
+    
+    # 2. Sign the message using the private key
+    # This returns a SignedMessage object, which has the .signature attribute
+    eth_sig_obj = eth_account.Account.sign_message(message, private_key=acct.key)
 
-    return addr, signed_msg.signature.hex()
+    # 3. Return the address and the hex version of the signature
+    return addr, eth_sig_obj.signature.hex()
 
 def send_signed_msg(proof, random_leaf):
     """ Sends the transaction to the blockchain contract. """
