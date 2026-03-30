@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./BridgeToken.sol";
 
 contract Destination is AccessControl {
-    bytes32 public constant WARDEN_ROLE = keccak256("BRIDGE_WARDEN_ROLE");
+    bytes32 public constant WARDEN_ROLE = keccak256("WARDEN_ROLE");
     bytes32 public constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
 
     mapping(address => address) public underlying_tokens;
@@ -36,13 +36,17 @@ contract Destination is AccessControl {
         address underlying_token = wrapped_tokens[_wrapped_token];
         require(underlying_token != address(0), "Invalid wrapped token");
 
+        // BridgeToken.sol allows the Destination contract (which has MINTER_ROLE) 
+        // to burn tokens via burnFrom without needing an explicit allowance.
         BridgeToken(_wrapped_token).burnFrom(msg.sender, _amount);
 
         emit Unwrap(underlying_token, _wrapped_token, msg.sender, _recipient, _amount);
     }
 
     function createToken(address _underlying_token, string memory name, string memory symbol) public onlyRole(CREATOR_ROLE) returns(address) {
-        BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol);
+        // BridgeToken constructor: (underlying, name, symbol, admin)
+        // We pass address(this) as admin so the Destination contract gets the MINTER_ROLE
+        BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol, address(this));
         address wrapped_address = address(newToken);
 
         underlying_tokens[_underlying_token] = wrapped_address;
