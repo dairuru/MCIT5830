@@ -33,9 +33,8 @@ def merkle_assignment():
 
     if sign_challenge_verify(challenge, addr, sig):
         print(f"Signature verified for {addr}")
-        # TODO: When you have testnet BNB, uncomment the line below to claim your prime
-        # tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
-        # print(f"Transaction sent! Hash: {tx_hash}")
+        tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
+        print(f"Transaction sent! Hash: {tx_hash}")
 
 def generate_primes(num_primes):
     """ Generates the first n prime numbers. """
