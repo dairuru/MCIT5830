@@ -6,15 +6,19 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./BridgeToken.sol";
 
 contract Destination is AccessControl {
-    bytes32 public constant WARDEN_ROLE = keccak256("WARDEN_ROLE");
-    bytes32 public constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
+    bytes32 public constant WARDEN_ROLE = keccak256("WARDEN");
+    bytes32 public constant CREATOR_ROLE = keccak256("CREATOR");
 
-    mapping(address => address) public underlying_tokens;
+    // Test expects: wrapped_tokens(underlying) -> wrapped
     mapping(address => address) public wrapped_tokens;
+    // Test expects: underlying_tokens(wrapped) -> underlying
+    mapping(address => address) public underlying_tokens;
+    
     address[] public tokens;
 
     event Creation(address indexed underlying_token, address indexed wrapped_token);
     event Wrap(address indexed underlying_token, address indexed wrapped_token, address indexed to, uint256 amount);
+    // Note: 'frm' is NOT indexed in the test file's event definition
     event Unwrap(address indexed underlying_token, address indexed wrapped_token, address frm, address indexed to, uint256 amount);
 
     constructor(address admin) {
@@ -23,37 +27,35 @@ contract Destination is AccessControl {
         _grantRole(WARDEN_ROLE, admin);
     }
 
+    function createToken(address _underlying_token, string memory name, string memory symbol) public onlyRole(CREATOR_ROLE) returns(address) {
+        BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol, address(this));
+        address wtoken = address(newToken);
+
+        // Matching the test's mapping expectations
+        wrapped_tokens[_underlying_token] = wtoken;
+        underlying_tokens[wtoken] = _underlying_token;
+        
+        tokens.push(wtoken);
+
+        emit Creation(_underlying_token, wtoken);
+        return wtoken;
+    }
+
     function wrap(address _underlying_token, address _recipient, uint256 _amount) public onlyRole(WARDEN_ROLE) {
-        address wrapped_token = underlying_tokens[_underlying_token];
-        require(wrapped_token != address(0), "Token not registered");
+        address wtoken = wrapped_tokens[_underlying_token];
+        require(wtoken != address(0), "Token not registered");
 
-        BridgeToken(wrapped_token).mint(_recipient, _amount);
+        BridgeToken(wtoken).mint(_recipient, _amount);
 
-        emit Wrap(_underlying_token, wrapped_token, _recipient, _amount);
+        emit Wrap(_underlying_token, wtoken, _recipient, _amount);
     }
 
     function unwrap(address _wrapped_token, address _recipient, uint256 _amount) public {
-        address underlying_token = wrapped_tokens[_wrapped_token];
-        require(underlying_token != address(0), "Invalid wrapped token");
+        address utoken = underlying_tokens[_wrapped_token];
+        require(utoken != address(0), "Invalid wrapped token");
 
-        // BridgeToken.sol allows the Destination contract (which has MINTER_ROLE) 
-        // to burn tokens via burnFrom without needing an explicit allowance.
         BridgeToken(_wrapped_token).burnFrom(msg.sender, _amount);
 
-        emit Unwrap(underlying_token, _wrapped_token, msg.sender, _recipient, _amount);
-    }
-
-    function createToken(address _underlying_token, string memory name, string memory symbol) public onlyRole(CREATOR_ROLE) returns(address) {
-        // BridgeToken constructor: (underlying, name, symbol, admin)
-        // We pass address(this) as admin so the Destination contract gets the MINTER_ROLE
-        BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol, address(this));
-        address wrapped_address = address(newToken);
-
-        underlying_tokens[_underlying_token] = wrapped_address;
-        wrapped_tokens[wrapped_address] = _underlying_token;
-        tokens.push(wrapped_address);
-
-        emit Creation(_underlying_token, wrapped_address);
-        return wrapped_address;
+        emit Unwrap(utoken, _wrapped_token, msg.sender, _recipient, _amount);
     }
 }
